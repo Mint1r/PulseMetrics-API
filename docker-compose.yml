@@ -1,0 +1,76 @@
+name: prod_api
+
+networks:
+  pulse_test_network:
+    external: true
+
+services:
+
+  db:
+    image: postgres:17
+    restart: always
+    shm_size: 128mb
+    ports:
+      - "5432:5432"
+
+    environment:
+      POSTGRES_USER: pulse_root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: pulse_db
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pulse_root -d pulse_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+
+  migrations:
+    build: .
+    command: alembic upgrade head
+
+    depends_on:
+      db:
+        condition: service_healthy
+        
+    environment:
+      DATABASE_URL: postgresql+asyncpg://pulse_root:root@db:5432/pulse_db
+
+  redis:
+    image: redis:7-alpine
+
+    ports:
+      - "6379:6379"
+
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 2s
+      retries: 10
+
+
+  fastapi:
+    build: .
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --workers 2
+      
+    ports:
+      - "8000:8000"
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+      migrations:
+        condition: service_completed_successfully
+
+      redis:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  redis_data:
