@@ -56,7 +56,12 @@ services:
 
   fastapi:
     build: .
-    command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --workers 2
+
+    command: >
+      sh -c "
+      python -m src.sync_projects_to_redis &&
+      uvicorn src.main:app --host 0.0.0.0 --port 8000 --workers 2
+      "
       
     ports:
       - "8000:8000"
@@ -70,6 +75,18 @@ services:
 
       redis:
         condition: service_healthy
+
+  consumer:
+    build: .
+    command: python -m src.consumers.consumer
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+      redis:
+        condition: service_healthy
+
 
 volumes:
   postgres_data:
