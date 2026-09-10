@@ -3,7 +3,6 @@ from sqlalchemy import select
 from src.core.postgres import AsyncSessionLocal
 from src.core.redis_client import redis
 from src.domain.models.project import ProjectModel
-from src.domain.models.event import EventModel
 
 REDIS_HASH = "projects-data"
 

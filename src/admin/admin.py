@@ -1,6 +1,7 @@
 from sqladmin import ModelView
 from src.domain.models.project import ProjectModel
 from src.domain.models.event import EventModel
+from src.domain.models.analytics import ReportModel
 
 class ProjectAdmin(ModelView, model=ProjectModel):
     column_list = [
@@ -21,3 +22,15 @@ class EventAdmin(ModelView, model=EventModel):
         EventModel.timestamp,
     ]
 
+
+class ReportAdmin(ModelView, model=ReportModel):
+    column_list = [
+        ReportModel.id,
+        ReportModel.project_id,
+        ReportModel.date,
+        ReportModel.total_events,
+        ReportModel.unique_users,
+        ReportModel.unique_sessions,
+        ReportModel.events_by_type,
+        ReportModel.created_at,
+    ]

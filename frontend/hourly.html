@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PulseMetrics — Hourly Analytics</title>
+
+    <link
+        rel="stylesheet"
+        href="/static/css/hourly.css"
+    >
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            <div class="logo-mark">P</div>
+            <span>PulseMetrics</span>
+        </div>
+
+        <nav class="navigation">
+
+            <a
+                href="#"
+                class="nav-item"
+                id="overviewLink"
+            >
+                <span class="nav-icon">▦</span>
+                Overview
+            </a>
+
+            <a
+                href="#"
+                class="nav-item active"
+            >
+                <span class="nav-icon">◷</span>
+                Hourly
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <div class="project-label">
+                PROJECT
+            </div>
+
+            <div class="project">
+
+                <div class="project-avatar">
+                    M
+                </div>
+
+                <div class="project-info">
+
+                    <span class="project-title">
+                        My Project
+                    </span>
+
+                    <span
+                        class="project-id"
+                        id="projectIdLabel"
+                    >
+                        550e8400...
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- Main -->
+
+    <main class="main">
+
+        <!-- Header -->
+
+        <header class="header">
+
+            <div>
+
+                <h1>
+                    Hourly Analytics
+                </h1>
+
+                <p class="subtitle">
+                    Today's project activity
+                </p>
+
+            </div>
+
+
+            <div class="header-actions">
+
+                <div class="today-label">
+                    <span id="todayLabel">
+                        Today
+                    </span>
+                </div>
+
+                <button
+                    class="refresh-button"
+                    id="refreshButton"
+                >
+                    ↻
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- Stats -->
+
+        <section class="stats-grid">
+
+            <div class="stat-card">
+
+                <div class="stat-header">
+
+                    <span>
+                        Total Events
+                    </span>
+
+                    <span class="stat-icon events-icon">
+                        ↗
+                    </span>
+
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="totalEvents"
+                >
+                    0
+                </div>
+
+                <div class="stat-description">
+                    Events received today
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-header">
+
+                    <span>
+                        Unique Users
+                    </span>
+
+                    <span class="stat-icon users-icon">
+                        ◉
+                    </span>
+
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="uniqueUsers"
+                >
+                    0
+                </div>
+
+                <div class="stat-description">
+                    Active users today
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-header">
+
+                    <span>
+                        Unique Sessions
+                    </span>
+
+                    <span class="stat-icon sessions-icon">
+                        ◌
+                    </span>
+
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="uniqueSessions"
+                >
+                    0
+                </div>
+
+                <div class="stat-description">
+                    User sessions today
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Hourly Chart -->
+
+        <section class="card chart-card">
+
+            <div class="card-header">
+
+                <div>
+
+                    <h2>
+                        Events by hour
+                    </h2>
+
+                    <p>
+                        Number of received events throughout today
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="chart-wrapper">
+
+                <div
+                    class="y-axis"
+                    id="yAxis"
+                ></div>
+
+
+                <div class="chart-area">
+
+                    <div class="grid-lines">
+
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+
+                    </div>
+
+
+                    <svg
+                        id="eventsChart"
+                        viewBox="0 0 1000 320"
+                        preserveAspectRatio="none"
+                    >
+
+                        <defs>
+
+                            <linearGradient
+                                id="chartGradient"
+                                x1="0"
+                                x2="0"
+                                y1="0"
+                                y2="1"
+                            >
+
+                                <stop
+                                    offset="0%"
+                                    stop-opacity="0.25"
+                                />
+
+                                <stop
+                                    offset="100%"
+                                    stop-opacity="0"
+                                />
+
+                            </linearGradient>
+
+                        </defs>
+
+
+                        <path
+                            id="chartArea"
+                            class="chart-area-fill"
+                        ></path>
+
+
+                        <polyline
+                            id="chartLine"
+                            class="chart-line"
+                        ></polyline>
+
+
+                        <g id="chartPoints"></g>
+
+                    </svg>
+
+
+                    <div
+                        class="tooltip"
+                        id="chartTooltip"
+                    >
+
+                        <div
+                            class="tooltip-hour"
+                        ></div>
+
+                        <div
+                            class="tooltip-value"
+                        ></div>
+
+                    </div>
+
+
+                    <div
+                        class="x-axis"
+                        id="xAxis"
+                    ></div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Bottom Grid -->
+
+        <section class="bottom-grid">
+
+
+            <!-- Event Types -->
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h2>
+                            Events by type
+                        </h2>
+
+                        <p>
+                            Distribution of today's events
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="event-types"
+                    id="eventTypes"
+                ></div>
+
+            </div>
+
+
+            <!-- Hourly Table -->
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h2>
+                            Hourly reports
+                        </h2>
+
+                        <p>
+                            Activity recorded today
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                        <tr>
+
+                            <th>
+                                Hour
+                            </th>
+
+                            <th>
+                                Events
+                            </th>
+
+                            <th>
+                                Users
+                            </th>
+
+                            <th>
+                                Sessions
+                            </th>
+
+                        </tr>
+
+                        </thead>
+
+
+                        <tbody
+                            id="reportsTable"
+                        ></tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script src="/static/js/hourly.js"></script>
+
+</body>
+
+</html>

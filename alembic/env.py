@@ -7,8 +7,9 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
 
 from src.core.postgres import Base
-from src.domain.models.event import EventModel
 from src.domain.models.project import ProjectModel
+from src.domain.models.event import EventModel
+from src.domain.models.analytics import ReportModel
 
 config = context.config
 
