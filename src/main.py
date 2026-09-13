@@ -7,6 +7,14 @@ from src.core.postgres import engine
 from sqladmin import Admin
 from . admin.admin import ProjectAdmin, EventAdmin, ReportAdmin
 from fastapi.staticfiles import StaticFiles
+from contextlib import asynccontextmanager
+from src.core.redis_client import redis
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    yield
+    await redis.aclose()
+
 
 app = FastAPI()
 admin = Admin(app, engine)
