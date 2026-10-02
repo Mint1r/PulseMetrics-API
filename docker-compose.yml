@@ -43,11 +43,13 @@ services:
     volumes:
       - redis_data:/data
 
+    restart: unless-stopped
+
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 2s
       timeout: 2s
-      retries: 10
+      retries: 5
 
 
   fastapi:
@@ -124,6 +126,15 @@ services:
       nofile:
         soft: 65535
         hard: 65535
+  project_sync:
+    build: .
+    command: python -m src.workers.project_sync_worker
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
 
 volumes:
