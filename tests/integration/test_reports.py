@@ -262,11 +262,11 @@ def test_generate_hour_report(db_session_sync,test_redis_sync):
     ):
         generate_hour_report(str(project_id))
 
-    hour = "11:00"
+    hour = "10:00"
 
 
     report = test_redis_sync.hget(
-        f"hourly_reports:{project_id}:2026-08-21",
+        f"hourly_reports:{str(project_id)}:2026-08-21",
         str(hour),
     )
     report = json.loads(report)

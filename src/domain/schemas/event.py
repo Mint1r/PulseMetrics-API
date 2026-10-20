@@ -11,12 +11,6 @@ class EventCreateSchema(BaseModel):
         examples=["9f8e7d6c-5b4a-3f2e-1d0c-9b8a7f6e5d4c"]
     )
 
-    api_key: str = Field(
-        ...,
-        min_length=32,
-        description="Секретный API-ключ проекта"
-    )
-
     event_type: str = Field(
         ..., 
         min_length=3, 

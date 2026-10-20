@@ -1,0 +1,319 @@
+```html
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход</title>
+
+    <style>
+        :root {
+            --bg: #f6f7f9;
+            --surface: #ffffff;
+            --border: #e8eaee;
+            --text: #17191c;
+            --muted: #7c818a;
+            --primary: #5b5bd6;
+            --primary-light: #eeeeff;
+            --sidebar-width: 240px;
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--bg);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                         Roboto, sans-serif;
+            color: var(--text);
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 420px;
+            padding: 24px;
+        }
+
+        .auth-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 40px;
+        }
+
+        .auth-header {
+            margin-bottom: 28px;
+        }
+
+        .auth-header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .auth-header p {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            height: 44px;
+            padding: 0 13px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            outline: none;
+            font-size: 14px;
+            color: var(--text);
+            background: var(--surface);
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .error-message {
+            display: none;
+            margin-top: 7px;
+            color: #d64545;
+            font-size: 13px;
+        }
+
+        .server-error {
+            display: none;
+            margin-bottom: 18px;
+            padding: 11px 12px;
+            border-radius: 8px;
+            background: #fff0f0;
+            color: #c63d3d;
+            font-size: 13px;
+        }
+
+        .submit-button {
+            width: 100%;
+            height: 44px;
+            border: none;
+            border-radius: 9px;
+            background: var(--primary);
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: opacity 0.15s ease;
+        }
+
+        .submit-button:hover {
+            opacity: 0.9;
+        }
+
+        .submit-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .auth-footer {
+            margin-top: 22px;
+            text-align: center;
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .auth-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="auth-container">
+    <div class="auth-card">
+
+        <div class="auth-header">
+            <h1>Вход</h1>
+            <p>Войдите в свой аккаунт</p>
+        </div>
+
+        <div id="server-error" class="server-error"></div>
+
+        <form id="login-form">
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="example@mail.com"
+                    autocomplete="email"
+                >
+                <div id="email-error" class="error-message">
+                    Введите корректный email
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Пароль</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Введите пароль"
+                    autocomplete="current-password"
+                >
+                <div id="password-error" class="error-message">
+                    Пароль должен содержать минимум 8 символов
+                </div>
+            </div>
+
+            <button
+                type="submit"
+                id="submit-button"
+                class="submit-button"
+            >
+                Войти
+            </button>
+
+        </form>
+
+        <div class="auth-footer">
+            Нет аккаунта?
+            <a href="/users/register">Зарегистрироваться</a>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById("login-form");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+
+    const emailError = document.getElementById("email-error");
+    const passwordError = document.getElementById("password-error");
+
+    const serverError = document.getElementById("server-error");
+    const submitButton = document.getElementById("submit-button");
+
+    function validateEmail(email) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    function hideErrors() {
+        emailError.style.display = "none";
+        passwordError.style.display = "none";
+        serverError.style.display = "none";
+    }
+
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        hideErrors();
+
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+
+        let valid = true;
+
+        if (!validateEmail(email)) {
+            emailError.style.display = "block";
+            valid = false;
+        }
+
+        if (password.length < 8) {
+            passwordError.style.display = "block";
+            valid = false;
+        }
+
+        if (!valid) {
+            return;
+        }
+
+        submitButton.disabled = true;
+        submitButton.textContent = "Вход...";
+
+        try {
+            const response = await fetch("/users/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
+            });
+
+            if (!response.ok) {
+                let message = "Не удалось войти";
+
+                try {
+                    const data = await response.json();
+                    message = data.detail || message;
+                } catch (_) {}
+
+                serverError.textContent = message;
+                serverError.style.display = "block";
+                return;
+            }
+
+            // После успешного входа
+            window.location.href = "/dashboard";
+
+        } catch (error) {
+            serverError.textContent = "Ошибка соединения с сервером";
+            serverError.style.display = "block";
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = "Войти";
+        }
+    });
+
+
+const response = await fetch("/users/login", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify({
+        email,
+        password,
+    }),
+});
+
+if (response.ok) {
+    window.location.href = "/dashboard";
+}
+</script>
+
+</body>
+</html>
+```

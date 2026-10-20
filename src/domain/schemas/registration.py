@@ -19,3 +19,10 @@ class RegistrationResponseSchema(BaseModel):
 
 class ProjectCreateSchema(BaseModel):
     title : str = Field(description="Название проекта")
+
+class AddProjectAccessSchema(BaseModel):
+
+    api_key: str = Field(
+        default_factory=uuid4,
+        description="Секретный API-ключ проекта",
+    )

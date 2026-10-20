@@ -7,7 +7,7 @@ client = TestClient(app)
 import httpx
 
 @pytest.mark.asyncio
-async def test_registraton(test_redis,db_session):
+async def test_register_project(test_redis,db_session):
     async def override_get_redis():
         yield test_redis
     async def override_get_db():
@@ -27,7 +27,7 @@ async def test_registraton(test_redis,db_session):
         ) as client:
 
             response = await client.post(
-                "/api/v1/registration",
+                "/api/v1/project-registration",
                 json={
                     "title": title,
                 },
@@ -52,9 +52,11 @@ async def test_registraton(test_redis,db_session):
 
             response = await client.post(
                 "/api/v1/events",
+                headers={
+                    "X-API-Key": api_key,
+                },
                 json={
                     "project_id": str(project_id),
-                    "api_key": api_key,
                     "event_type": "cart_item_added",
                     "session_id": "sess_abc123xyz",
                 },

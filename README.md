@@ -5,7 +5,10 @@
 ## Features
 
 * Приём событий через REST API
-* Валидация API key
+* Валидация API key (заголовок `X-API-Key`)
+* Система пользователей: регистрация, вход, сессии (cookie `session_id`)
+* Привязка проектов к пользователям, веб-дашборд
+* Админ-панель (SQLAdmin, `/admin`)
 * Redis как промежуточное хранилище
 * Redis Streams
 * Асинхронный consumer
@@ -18,7 +21,7 @@
 
 ## Architecture
 
-Данные приходят на ендпоинт, проходят через pydantic и проверку api-key, после передаются
+Данные приходят на ендпоинт, проходят через pydantic и проверку api-key (заголовок `X-API-Key`), после передаются
 
 в редис стрим, оттуда их забирает консьюмер и батчит в бд:
 
@@ -61,23 +64,40 @@ PostgreSQL
 
 ### Events
 
-* `POST /api/v1/events` — приём аналитических событий и добавление их в Redis Stream
+* `POST /api/v1/events` — приём аналитических событий и добавление их в Redis Stream. Требует заголовок `X-API-Key`
 
 ### Projects
 
-* `POST /api/v1/registration` — регистрация новых пользователей, выдает project_id + api_key
+* `POST /api/v1/project-registration` — регистрация нового проекта, выдаёт `project_id` + `api_key` (ключ показывается один раз, в базе хранится только его хеш)
+
+### Users
+
+* `POST /users/registration` — регистрация пользователя (email + пароль), сразу создаёт сессию
+* `POST /users/login` — вход, устанавливает cookie `session_id`
+* `POST /users/logout` — выход, удаляет сессию и cookie
+* `GET /users/dashboard/get-accesses` — список проектов, к которым у пользователя есть доступ
+* `POST /users/dashboard/add-project` — добавить проект в аккаунт по `api_key`
 
 ### Analytics
 
-* `GET /api/v1/dashboard/{project_id}/` — получение дневной аналитики проекта
-* `GET /api/v1/dashboard/{project_id}/hourly` — получение дневной аналитики проекта
+* `GET /api/v1/analytics/{project_id}/daily?days=30` — дневные отчёты проекта (`days`: 1–365)
+* `GET /api/v1/analytics/{project_id}/hourly` — часовые отчёты проекта
 
+### Web
 
+* `/users/registration/`, `/users/login/` — страницы регистрации и входа
+* `/dashboard` — список проектов пользователя
+* `/dashboard/{project_id}/`, `/dashboard/{project_id}/hourly` — дашборды проекта
+* `/admin` — админ-панель
 
-Для защищённых endpoint'ов используется API key.
+## Authentication
 
-API key передаётся в HTTP-заголовке запроса.
+Используются два механизма:
 
+* **API key** — для отправки событий (`POST /api/v1/events`). Передаётся в HTTP-заголовке `X-API-Key`, а не в теле запроса. Ключ выдаётся при регистрации проекта, в БД и Redis хранится его SHA-256 хеш.
+* **Сессии пользователей** — для аналитики, дашбордов и управления проектами. После входа сервер ставит `HttpOnly` cookie `session_id`; в БД хранится только хеш токена, активные сессии кэшируются в Redis (`SESSION_CACHE_TTL`, по умолчанию 120 с в docker-compose). Неавторизованные запросы перенаправляются на `/users/login`.
+
+Пользователь получает доступ к проекту, добавив его по `api_key` (`POST /users/dashboard/add-project`).
 
 ## Load Testing Results
 
@@ -169,6 +189,16 @@ locust -f load_tests/locustfile.py
 
 ```http
 POST /api/v1/events
+X-API-Key: <api_key>
+Content-Type: application/json
+
+{
+  "project_id": "9f8e7d6c-5b4a-3f2e-1d0c-9b8a7f6e5d4c",
+  "event_type": "page_view",
+  "user_id": "usr_12345",
+  "session_id": "sess_abc123xyz",
+  "properties": {"page": "/home"}
+}
 ```
 
 После успешной валидации событие помещается в Redis Stream и возвращается ответ о принятии события.

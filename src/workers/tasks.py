@@ -8,8 +8,7 @@ from src.core.redis_client import sync_redis as redis
 from sqlalchemy import select, func, distinct
 from datetime import datetime, timedelta, timezone
 import json
-from sqlalchemy.dialects.postgresql import insert
-
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 @app.task
 def generate_daily_reports():
     (_dispatch_daily_reports())
@@ -63,18 +62,19 @@ def _dispatch_hour_reports():
 
 @app.task
 def generate_hour_report(project_id: str):
-    now = datetime.now(timezone.utc)
-    hour = now.strftime("%H:00")
-    date = now.date().isoformat()
 
     end = datetime.now(timezone.utc).replace(
         minute=0,
         second=0,
         microsecond=0,
     )
+
     start = end - timedelta(hours=1)
 
     report = generate(end=end,start=start,project_id=project_id)
+
+    date = start.date().isoformat()
+    hour = start.strftime("%H:00")
 
     key = (
         f"hourly_reports:"
@@ -82,8 +82,10 @@ def generate_hour_report(project_id: str):
         f"{str(date)}"
     )
 
-    redis.hset(key,str(hour),
-               json.dumps(report,default=str))
+    redis.hset(key,
+               str(hour),
+               json.dumps(report,default=str)
+    )
 
 
 def generate(end,start,project_id: str):
@@ -148,7 +150,7 @@ def generate(end,start,project_id: str):
 def _set_report(report):
     with SessionLocal() as session:
 
-        stmt = insert(ReportModel).values(**report)
+        stmt = pg_insert(ReportModel).values(**report)
 
         stmt = stmt.on_conflict_do_update(
             constraint="uq_report_project_date",

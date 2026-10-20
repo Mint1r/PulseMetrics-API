@@ -21,5 +21,9 @@ class ProjectModel(Base):
     events : Mapped[list["EventModel"]] = relationship(
         back_populates="project",
     )
+    project_accesses: Mapped[list["ProjectAccessModel"]] = relationship(
+        back_populates="project",
+        cascade="all, delete-orphan",
+    )
 
 

@@ -10,14 +10,16 @@ class EventUser(HttpUser):
     def ingest_event(self):
         self.client.post(
             "/api/v1/events",
+            headers={
+                "X-API-Key": API_KEY,
+            },
             json={
                 "project_id": PROJECT_ID,
-                "api_key": API_KEY,
                 "event_type": "page_view",
                 "user_id": str(uuid.uuid4()),
                 "session_id": str(uuid.uuid4()),
                 "properties": {
-                    "page": "/home"
-                }
-            }
+                    "page": "/home",
+                },
+            },
         )

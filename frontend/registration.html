@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Регистрация</title>
+
+    <style>
+        :root {
+            --bg: #f6f7f9;
+            --surface: #ffffff;
+            --border: #e8eaee;
+
+            --text: #17191c;
+            --muted: #7c818a;
+
+            --primary: #5b5bd6;
+            --primary-light: #eeeeff;
+
+            --sidebar-width: 240px;
+
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Arial,
+                sans-serif;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .auth-wrapper {
+            width: 100%;
+            max-width: 440px;
+        }
+
+        .auth-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 40px;
+            box-shadow:
+                0 10px 30px rgba(23, 25, 28, 0.04);
+        }
+
+        .auth-header {
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            width: 42px;
+            height: 42px;
+            border-radius: 11px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: var(--primary-light);
+            color: var(--primary);
+
+            font-size: 18px;
+            font-weight: 700;
+
+            margin-bottom: 22px;
+        }
+
+        .auth-title {
+            font-size: 28px;
+            line-height: 1.2;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+
+        .auth-subtitle {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .form {
+            display: flex;
+            flex-direction: column;
+            gap: 19px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .field label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input {
+            width: 100%;
+            height: 48px;
+
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+
+            background: #fff;
+            color: var(--text);
+
+            font-size: 14px;
+            outline: none;
+
+            padding: 0 15px;
+
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease,
+                background 0.2s ease;
+        }
+
+        .input::placeholder {
+            color: #a3a7ae;
+        }
+
+        .input:hover {
+            border-color: #d8dbe2;
+        }
+
+        .input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--primary-light);
+        }
+
+        .input.invalid {
+            border-color: #dc5c5c;
+            box-shadow: 0 0 0 4px rgba(220, 92, 92, 0.08);
+        }
+
+        .input.valid {
+            border-color: #8cc89d;
+        }
+
+        .error {
+            min-height: 16px;
+
+            color: #dc5c5c;
+            font-size: 12px;
+            line-height: 1.3;
+
+            opacity: 0;
+            transform: translateY(-2px);
+
+            transition:
+                opacity 0.2s ease,
+                transform 0.2s ease;
+        }
+
+        .error.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .password-hint {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .submit-button {
+            width: 100%;
+            height: 48px;
+
+            border: none;
+            border-radius: var(--radius);
+
+            background: var(--primary);
+            color: #ffffff;
+
+            font-size: 14px;
+            font-weight: 600;
+
+            cursor: pointer;
+
+            transition:
+                transform 0.15s ease,
+                background 0.2s ease,
+                box-shadow 0.2s ease;
+
+            margin-top: 3px;
+        }
+
+        .submit-button:hover {
+            background: #4f4fc8;
+            box-shadow: 0 6px 18px rgba(91, 91, 214, 0.18);
+        }
+
+        .submit-button:active {
+            transform: translateY(1px);
+        }
+
+        .submit-button:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .server-message {
+            display: none;
+
+            padding: 12px 14px;
+            border-radius: 10px;
+
+            background: #fff1f1;
+            border: 1px solid #f2d0d0;
+
+            color: #b64747;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .server-message.visible {
+            display: block;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 24px;
+
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .login-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+
+            transition: opacity 0.2s ease;
+        }
+
+        .login-link a:hover {
+            opacity: 0.75;
+        }
+
+        @media (max-width: 520px) {
+            body {
+                padding: 14px;
+            }
+
+            .auth-card {
+                padding: 28px 22px;
+                border-radius: 15px;
+            }
+
+            .auth-title {
+                font-size: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="auth-wrapper">
+    <div class="auth-card">
+
+        <div class="auth-header">
+            <div class="logo">P</div>
+
+            <h1 class="auth-title">
+                Создать аккаунт
+            </h1>
+
+            <p class="auth-subtitle">
+                Зарегистрируйтесь, чтобы получить доступ к системе
+            </p>
+        </div>
+
+        <form class="form" id="registerForm" novalidate>
+
+            <!-- Email -->
+            <div class="field">
+                <label for="email">
+                    Email
+                </label>
+
+                <div class="input-wrapper">
+                    <input
+                        class="input"
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="name@example.com"
+                        autocomplete="email"
+                    >
+                </div>
+
+                <div class="error" id="emailError">
+                    Введите корректный email
+                </div>
+            </div>
+
+            <!-- Password -->
+            <div class="field">
+                <label for="password1">
+                    Пароль
+                </label>
+
+                <div class="input-wrapper">
+                    <input
+                        class="input"
+                        type="password"
+                        id="password1"
+                        name="password1"
+                        placeholder="Введите пароль"
+                        autocomplete="new-password"
+                    >
+                </div>
+
+                <div class="password-hint">
+                    Минимум 8 символов
+                </div>
+
+                <div class="error" id="password1Error">
+                    Пароль должен содержать минимум 8 символов
+                </div>
+            </div>
+
+            <!-- Confirm password -->
+            <div class="field">
+                <label for="password2">
+                    Повторите пароль
+                </label>
+
+                <div class="input-wrapper">
+                    <input
+                        class="input"
+                        type="password"
+                        id="password2"
+                        name="password2"
+                        placeholder="Повторите пароль"
+                        autocomplete="new-password"
+                    >
+                </div>
+
+                <div class="error" id="password2Error">
+                    Пароли не совпадают
+                </div>
+            </div>
+
+            <div class="server-message" id="serverMessage"></div>
+
+            <button
+                class="submit-button"
+                type="submit"
+                id="submitButton"
+            >
+                Создать аккаунт
+            </button>
+
+        </form>
+
+        <div class="login-link">
+            Уже есть аккаунт?
+            <a href="/users/login">
+                Войти
+            </a>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById("registerForm");
+
+    const email = document.getElementById("email");
+    const password1 = document.getElementById("password1");
+    const password2 = document.getElementById("password2");
+
+    const emailError = document.getElementById("emailError");
+    const password1Error = document.getElementById("password1Error");
+    const password2Error = document.getElementById("password2Error");
+
+    const serverMessage = document.getElementById("serverMessage");
+    const submitButton = document.getElementById("submitButton");
+
+
+    function showError(input, errorElement, message) {
+        input.classList.add("invalid");
+        input.classList.remove("valid");
+
+        errorElement.textContent = message;
+        errorElement.classList.add("visible");
+    }
+
+
+    function clearError(input, errorElement) {
+        input.classList.remove("invalid");
+        input.classList.add("valid");
+
+        errorElement.classList.remove("visible");
+    }
+
+
+    function validateEmail(value) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    }
+
+
+    function validateForm() {
+        let isValid = true;
+
+        const emailValue = email.value.trim();
+        const password1Value = password1.value;
+        const password2Value = password2.value;
+
+
+        // Email
+        if (!emailValue) {
+            showError(
+                email,
+                emailError,
+                "Введите email"
+            );
+
+            isValid = false;
+        } else if (!validateEmail(emailValue)) {
+            showError(
+                email,
+                emailError,
+                "Введите корректный email"
+            );
+
+            isValid = false;
+        } else {
+            clearError(email, emailError);
+        }
+
+
+        // Password
+        if (password1Value.length < 8) {
+            showError(
+                password1,
+                password1Error,
+                "Пароль должен содержать минимум 8 символов"
+            );
+
+            isValid = false;
+        } else {
+            clearError(password1, password1Error);
+        }
+
+
+        // Password confirmation
+        if (!password2Value) {
+            showError(
+                password2,
+                password2Error,
+                "Повторите пароль"
+            );
+
+            isValid = false;
+        } else if (password1Value !== password2Value) {
+            showError(
+                password2,
+                password2Error,
+                "Пароли не совпадают"
+            );
+
+            isValid = false;
+        } else {
+            clearError(password2, password2Error);
+        }
+
+
+        return isValid;
+    }
+
+
+    // Валидация во время ввода
+    email.addEventListener("input", () => {
+        if (email.value.trim() && validateEmail(email.value.trim())) {
+            clearError(email, emailError);
+        }
+    });
+
+
+    password1.addEventListener("input", () => {
+        if (password1.value.length >= 8) {
+            clearError(password1, password1Error);
+        }
+
+        if (
+            password2.value &&
+            password1.value === password2.value
+        ) {
+            clearError(password2, password2Error);
+        }
+    });
+
+
+    password2.addEventListener("input", () => {
+        if (
+            password2.value &&
+            password1.value === password2.value &&
+            password1.value.length >= 8
+        ) {
+            clearError(password2, password2Error);
+        }
+    });
+
+
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        serverMessage.classList.remove("visible");
+        serverMessage.textContent = "";
+
+
+        if (!validateForm()) {
+            return;
+        }
+
+
+        submitButton.disabled = true;
+        submitButton.textContent = "Регистрация...";
+
+
+        const data = {
+            email: email.value.trim(),
+            password: password1.value,
+        };
+
+
+        try {
+            const response = await fetch("/users/registration", {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify(data)
+            });
+
+            console.log("STATUS:", response.status);
+
+
+            let result = null;
+
+            try {
+                result = await response.json();
+            } catch {
+                result = null;
+            }
+            console.log("STATUS:", response.status);
+
+            if (!response.ok) {
+                let message = "Не удалось создать аккаунт";
+
+                if (result?.detail) {
+                    message = Array.isArray(result.detail)
+                        ? result.detail
+                            .map(error => error.msg)
+                            .join(", ")
+                        : result.detail;
+                }
+
+                throw new Error(message);
+            }
+
+
+            // Успешная регистрация
+            window.location.href = "/dashboard";
+
+        } catch (error) {
+
+            serverMessage.textContent =
+                error.message || "Произошла ошибка";
+
+            serverMessage.classList.add("visible");
+
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = "Создать аккаунт";
+        }
+    });
+
+</script>
+
+</body>
+</html>

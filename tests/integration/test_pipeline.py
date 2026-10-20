@@ -43,9 +43,11 @@ async def test_pipeline(test_redis,db_session):
 
             response = await client.post(
                 "/api/v1/events",
+                headers={
+                    "X-API-Key": api_key,
+                },
                 json={
                     "project_id": str(project_id),
-                    "api_key": api_key,
                     "event_type": "cart_item_added",
                     "session_id": "sess_abc123xyz",
                 },

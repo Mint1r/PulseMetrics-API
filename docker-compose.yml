@@ -40,6 +40,8 @@ services:
   redis:
     image: redis:7-alpine
 
+    command: ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec"]
+
     volumes:
       - redis_data:/data
 
@@ -59,6 +61,9 @@ services:
       python -m src.sync_projects_to_redis &&
       uvicorn src.main:app --host 0.0.0.0 --port 8000 --workers 2
       "
+    
+    environment:
+      SESSION_CACHE_TTL: ${SESSION_CACHE_TTL:-120}
 
     depends_on:
       db:
